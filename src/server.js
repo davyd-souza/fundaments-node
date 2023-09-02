@@ -1,9 +1,21 @@
 import http from 'node:http'
+import { randomUUID } from 'node:crypto'
 
 const users = []
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
+  const buffers = []
   const { method, url } = req
+
+  for await(const chunk of req) {
+    buffers.push(chunk)
+  }
+
+  try {
+    req.body = JSON.parse(Buffer.concat(buffers).toString())
+  } catch {
+    req.body = null
+  }
 
   if (method === 'GET' && url === '/users') {
     return res
@@ -12,10 +24,16 @@ const server = http.createServer((req, res) => {
   }
   
   if (method === 'POST' && url === '/users') {
+    if (req.body === null || req.body.email === undefined || req.body.name === undefined) {
+      return res.writeHead(400).end('Missing body with fields: email and name.')
+    }
+
+    const { name, email } = req.body
+
     users.push({
-      id: 1,
-      name: 'John Doe',
-      email: 'johndoe@example.com',
+      id: randomUUID(),
+      name,
+      email,
     })
 
     return res.writeHead(201).end()
