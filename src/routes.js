@@ -1,12 +1,14 @@
 import { randomUUID } from 'node:crypto'
 import { Database } from './database.js'
 
+import { buildRoutePath } from './util/buil-route-path.js'
+
 const database = new Database()
 
 export const routes = [
   {
     method: 'GET',
-    path: '/users',
+    path: buildRoutePath('/users'),
     handler: (req, res) => {
       const users = database.select('users')
 
@@ -16,7 +18,7 @@ export const routes = [
   },
   {
     method: 'POST',
-    path: '/users',
+    path: buildRoutePath('/users'),
     handler: (req, res) => {
       if (req.body === null || req.body.email === undefined || req.body.name === undefined) {
         return res.writeHead(400).end('Missing body with fields: email and name.')
