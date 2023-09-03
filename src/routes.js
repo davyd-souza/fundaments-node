@@ -19,13 +19,13 @@ export const routes = [
   {
     method: 'POST',
     path: buildRoutePath('/users'),
-    handler: (req, res) => {
-      if (req.body === null || req.body.email === undefined || req.body.name === undefined) {
-        return res.writeHead(400).end('Missing body with fields: email and name.')
-      }
-  
+    handler: (req, res) => {  
       const { name, email } = req.body
   
+      if (req.body === null || !email || !name) {
+        return res.writeHead(400).end()
+      }
+
       const user = {
         id: randomUUID(),
         name,
@@ -38,6 +38,25 @@ export const routes = [
     }
   },
   {
+    method: 'PUT',
+    path: buildRoutePath('/users/:id'),
+    handler: (req, res) => {
+      const { id } = req.params
+      const { name, email } = req.body
+
+      if (req.body === null || !email || !name) {
+        return res.writeHead(400).end()
+      }
+
+      database.update('users', id, {
+        name,
+        email,
+      })
+
+      res.writeHead(204).end()
+    },
+  },
+  {
     method: 'DELETE',
     path: buildRoutePath('/users/:id'),
     handler: (req, res) => {
@@ -47,5 +66,5 @@ export const routes = [
 
       res.writeHead(204).end()
     },
-  } 
+  },
 ]
